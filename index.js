@@ -1,57 +1,31 @@
-// Define keyboard shortcuts for showing and hiding a custom panel.
-var { Cc, Ci } = require("chrome");
-var { Hotkey } = require("sdk/hotkeys");
-var panel = require("sdk/panel");
-var timers = require("sdk/timers");
-var data = require("sdk/self").data;
-var runtime = require("sdk/system/runtime");
-var osString = runtime.OS;
-var osWarnFile;
+var hasWarned;
 
-// Load the right warning
-if (osString === "Darwin") {
-        osWarnFile = "warnmac.html";
-    } else {
-        osWarnFile = "warn.html";
-}
+var quitNotification = "quit-notification";
 
-// Create the panel to show the warning
-var myPanel = panel.Panel({
-      width: 300,
-      height: 80,
-      contentURL: data.url(osWarnFile),
-});
+browser.commands.onCommand.addListener(listener);
 
-// Display the warning
-function showPanel() {
-    myPanel.show();
-    timers.setTimeout(function() {
-        myPanel.hide();
-    }, 2000);
-}
+function listener(command) {
+  if (hasWarned) {
+    browser.commands.onCommand.removeListener(listener);
 
-var pressButton = function() {
-    // We're already showing the warning
-    if (myPanel.isShowing) {
-        myPanel.hide();
-        Cc['@mozilla.org/toolkit/app-startup;1']
-            .getService(Ci.nsIAppStartup)
-            .quit(Ci.nsIAppStartup.eAttemptQuit)
-    }
-    // Show the warning since we didn't quit yet
-    showPanel();
-};
-
-// Handle the keypress
-var AccelQ = Hotkey({
-  combo: "accel-q",
-  onPress: function() {
-    pressButton();
+    return;
   }
-});
-var AccelShiftW = Hotkey({
-  combo: "accel-shift-w",
-  onPress: function() {
-    pressButton();
+
+  if (command == "prevent-quit-mac") {
+    browser.notifications.create(quitNotification, {
+      "type": "basic",
+      "title": "Firefox was prevented from quitting",
+      "message": "Press ⌘-Q or ⌘-Shift-W again to quit."
+    });
   }
-});
+
+  if (command == "prevent-quit") {
+    browser.notifications.create(quitNotification, {
+      "type": "basic",
+      "title": "Firefox was prevented from quitting",
+      "message": "Press Control-Q or Control-Shift-W again to quit."
+    });
+  }
+
+  hasWarned = true;
+}

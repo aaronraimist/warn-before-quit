@@ -1,0 +1,34 @@
+{
+  "applications": {
+    "gecko": {
+      "strict_min_version": "48.0"
+    }
+  },
+  "author": "Nigel Babu",
+  "background": {
+    "scripts": [ "index.js" ]
+  },
+  "commands": {
+    "prevent-quit-mac": {
+      "description": "Send a 'prevent-quit-mac' event to the extension",
+      "suggested_key": {
+        "mac": "Command+Q"
+      }
+    },
+    "prevent-quit": {
+      "description": "Send a 'prevent-quit' event to the extension",
+      "suggested_key": {
+        "default": "Ctrl+Q"
+      }
+    }
+  },
+  "description": "Warn before quitting Firefox",
+  "homepage_url": "https://github.com/nigelbabu/warn-before-quit",
+  "license": "MIT",
+  "manifest_version": 2,
+  "name": "Warn Before Quit",
+  "permissions": [
+    "notifications"
+  ],
+  "version": "1.0.0"
+}
